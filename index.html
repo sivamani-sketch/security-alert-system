@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Security Monitoring</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .location {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .video-container {
+            position: relative;
+            background-color: #000;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .video-container img {
+            width: 100%;
+            display: block;
+        }
+        .status-panel {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .status-content {
+            margin-top: 15px;
+        }
+        .current-status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: var(--light);
+            font-weight: bold;
+        }
+        .alert-status {
+            background-color: var(--danger);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+        .alert {
+            background-color: var(--danger);
+            color: white;
+            animation: blink 1s infinite;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background-color: var(--secondary);
+        }
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        .btn-warning {
+            background-color: #f39c12;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: var(--light);
+            font-size: 0.9em;
+        }
+        .history-item.alert {
+            background-color: #ffdddd;
+        }
+        @keyframes blink {
+            50% { opacity: 0.7; }
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        nav a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .confidence-meter {
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .confidence-level {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Campus Security Monitoring System</h1>
+            <div class="location" id="locationDisplay">Location: {{ location }}</div>
+        </header>
+        
+        <nav>
+            <a href="/">Live Monitoring</a>
+            <a href="/upload">Upload Media</a>
+            <a href="/history">Incident History</a>
+        </nav>
+        
+        <div class="dashboard">
+            <div class="video-container">
+                <img src="{{ url_for('video_feed') }}" id="videoFeed">
+            </div>
+            
+            <div class="status-panel">
+                <div class="status-header">
+                    <h2>System Status</h2>
+                    <div class="alert-status" id="alertIndicator">ACTIVE</div>
+                </div>
+                
+                <div class="current-status" id="currentStatus">
+                    Initializing system...
+                </div>
+                
+                <div class="confidence-meter">
+                    <div class="confidence-level" id="confidenceLevel"></div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="toggleAlerts">Toggle Alerts</button>
+                    <button class="btn btn-warning" id="testAlert">Test Alert</button>
+                </div>
+                
+                <h3>Recent Incidents</h3>
+                <div class="status-content" id="historyContent">
+                    <div class="history-item">No incidents detected yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Campus Security & Student Behavior Monitoring System</p>
+    </footer>
+
+    <script>
+        // Update status every second
+        function updateStatus() {
+            fetch('/get_status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update current status
+                    const statusElement = document.getElementById('currentStatus');
+                    statusElement.textContent = data.status;
+                    
+                    // Update alert indicator
+                    if (data.status.includes('ALERT')) {
+                        statusElement.className = 'current-status alert';
+                    } else {
+                        statusElement.className = 'current-status';
+                    }
+                    
+                    // Update alert active status
+                    const alertIndicator = document.getElementById('alertIndicator');
+                    alertIndicator.textContent = data.alert_active ? 'ACTIVE' : 'INACTIVE';
+                    alertIndicator.style.backgroundColor = data.alert_active ? '#2ecc71' : '#e74c3c';
+                    
+                    // Update history
+                    const historyContent = document.getElementById('historyContent');
+                    if (data.history && data.history.length > 0) {
+                        historyContent.innerHTML = '';
+                        data.history.reverse().forEach(item => {
+                            const historyItem = document.createElement('div');
+                            historyItem.className = item.action === 'fighting' ? 
+                                'history-item alert' : 'history-item';
+                            historyItem.innerHTML = `
+                                <strong>${item.timestamp}</strong><br>
+                                ${item.action} detected (${item.confidence})<br>
+                                Source: ${item.source}
+                            `;
+                            historyContent.appendChild(historyItem);
+                        });
+                    }
+                    
+                    // Update confidence level
+                    if (data.status.includes('Detected')) {
+                        const match = data.status.match(/\((\d+\.\d+)%\)/);
+                        if (match) {
+                            document.getElementById('confidenceLevel').style.width = `${match[1]}%`;
+                        }
+                    }
+                });
+        }
+        
+        // Toggle alerts
+        document.getElementById('toggleAlerts').addEventListener('click', () => {
+            fetch('/toggle_alerts', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => {
+                  const indicator = document.getElementById('alertIndicator');
+                  indicator.textContent = data.alert_active ? 'ACTIVE' : 'INACTIVE';
+                  indicator.style.backgroundColor = data.alert_active ? '#2ecc71' : '#e74c3c';
+              });
+        });
+        
+        // Test alert button
+        document.getElementById('testAlert').addEventListener('click', () => {
+            fetch('/test_alert', {
+                method: 'POST'
+            });
+        });
+        
+        // Update status every second
+        setInterval(updateStatus, 1000);
+        updateStatus(); // Initial call
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+    fighting       0.99      0.98      0.99      2200
+     running       0.98      0.99      0.98      2950
+     sitting       0.98      0.98      0.98      3000
+     talking       0.98      0.98      0.98      3300
+     walking       0.99      0.98      0.98      3450
+
+    accuracy                           0.98     14900
+   macro avg       0.98      0.98      0.98     14900
+weighted avg       0.98      0.98      0.98     14900
